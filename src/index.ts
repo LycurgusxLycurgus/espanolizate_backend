@@ -71,8 +71,9 @@ const start = async () => {
   try {
     await db.read();
     db.data ||= { conversations: {}, autoRespond: {} };
-    await server.listen({ port: 3000 });
-    server.log.info('Server is running on http://localhost:3000');
+    const port = process.env.PORT || 3000;
+    await server.listen({ port: Number(port), host: '0.0.0.0' });
+    server.log.info(`Server is running on http://0.0.0.0:${port}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
