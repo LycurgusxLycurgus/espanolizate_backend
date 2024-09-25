@@ -20,6 +20,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
             messages: Array<{
               from: string;
               text: { body: string };
+              id: string;
             }>;
           };
         }>;
@@ -35,6 +36,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
               messages: z.array(z.object({
                 from: z.string(),
                 text: z.object({ body: z.string() }),
+                id: z.string(),
               })),
             }),
           })),
@@ -48,7 +50,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
       for (const entry of body.entry) {
         for (const change of entry.changes) {
           for (const message of change.value.messages) {
-            await processIncomingMessage(server, message.from, message.text.body);
+            await processIncomingMessage(server, message.from, message.text.body, message.id);
           }
         }
       }
@@ -82,7 +84,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
   });
 };
 
-async function processIncomingMessage(server: FastifyInstance, from: string, text: string) {
+async function processIncomingMessage(server: FastifyInstance, from: string, text: string, messageId: string) {
   const { db } = server;
 
   if (!db.data) {
@@ -109,8 +111,11 @@ Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 
 
 🔗 https://pay.hotmart.com/V95372989N?off=j68zq7ud&checkoutMode=10 🔗
     `;
-    await sendWhatsAppMessage(from, preFabMessage);
+    await sendWhatsAppMessage(from, preFabMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
+  } else if (text.toLowerCase() === 'menu') {
+    await sendInteractiveList(from, 'Please choose an option:', ['Chatbot', 'Assistant']);
+    server.log.info(`Interactive list sent to ${from}`);
   } else {
     const response = await server.inject({
       method: 'POST',
@@ -119,18 +124,59 @@ Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 
     });
 
     const { response: aiResponse } = await response.json();
-    await sendWhatsAppMessage(from, aiResponse);
+    await sendWhatsAppMessage(from, aiResponse, messageId);
     server.log.info(`AI response sent to ${from}`);
   }
 }
 
-async function sendWhatsAppMessage(to: string, text: string) {
+async function sendWhatsAppMessage(to: string, text: string, messageId?: string) {
+  const messageBody: any = {
+    messaging_product: 'whatsapp',
+    to,
+    type: 'text',
+    text: { body: text },
+  };
+
+  if (messageId) {
+    messageBody.context = { message_id: messageId };
+  }
+
   await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-    json: {
-      messaging_product: 'whatsapp',
-      to,
-      type: 'text',
-      text: { body: text },
+    json: messageBody,
+  });
+}
+
+async function sendInteractiveList(to: string, text: string, options: string[]) {
+  const messageBody = {
+    messaging_product: 'whatsapp',
+    recipient_type: 'individual',
+    to,
+    type: 'interactive',
+    interactive: {
+      type: 'list',
+      header: {
+        type: 'text',
+        text: 'Choose an option',
+      },
+      body: {
+        text,
+      },
+      action: {
+        button: 'Select',
+        sections: [
+          {
+            title: 'Options',
+            rows: options.map((option, index) => ({
+              id: `option_${index + 1}`,
+              title: option,
+            })),
+          },
+        ],
+      },
     },
+  };
+
+  await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+    json: messageBody,
   });
 }
