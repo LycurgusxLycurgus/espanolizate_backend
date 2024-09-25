@@ -1,0 +1,175 @@
+{
+    "info": {
+      "name": "Espanolizate Backend API",
+      "description": "Postman collection to test the Espanolizate backend API.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "version": "1.0.0"
+    },
+    "item": [
+      {
+        "name": "Admin",
+        "item": [
+          {
+            "name": "Toggle Auto Respond",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"+1234567890\",\n    \"enable\": true\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/toggle-auto-respond",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["toggle-auto-respond"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Conversations",
+        "item": [
+          {
+            "name": "Get Conversations",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:3000/conversations/+1234567890",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["conversations", "+1234567890"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Post Conversation",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"message\": \"Hello, how are you?\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/conversations/+1234567890",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["conversations", "+1234567890"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "LangChain",
+        "item": [
+          {
+            "name": "Generate Response",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"input\": \"I need help with my anxiety.\",\n    \"phoneNumber\": \"+1234567890\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/generate",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["generate"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "WhatsApp",
+        "item": [
+          {
+            "name": "WhatsApp Webhook POST",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"object\": \"whatsapp_business_account\",\n    \"entry\": [\n        {\n            \"changes\": [\n                {\n                    \"value\": {\n                        \"messages\": [\n                            {\n                                \"from\": \"+1234567890\",\n                                \"text\": { \"body\": \"Hello!\" }\n                            }\n                        ]\n                    }\n                }\n            ]\n        }\n    ]\n}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/webhook",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["webhook"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "WhatsApp Webhook GET",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:3000/webhook?hub.mode=subscribe&hub.verify_token=G7h8Jk9LmN0PqRsTuVwXyZ1AbC2DeFgH&hub.challenge=123456",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["webhook"],
+                "query": [
+                  {
+                    "key": "hub.mode",
+                    "value": "subscribe"
+                  },
+                  {
+                    "key": "hub.verify_token",
+                    "value": "G7h8Jk9LmN0PqRsTuVwXyZ1AbC2DeFgH"
+                  },
+                  {
+                    "key": "hub.challenge",
+                    "value": "123456"
+                  }
+                ]
+              }
+            },
+            "response": []
+          }
+        ]
+      }
+    ]
+  }
+  
