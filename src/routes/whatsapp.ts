@@ -35,7 +35,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
               messages: z.array(z.object({
                 from: z.string(),
                 text: z.object({ body: z.string() }),
-              })),
+              })).optional(), // Make messages optional
             }),
           })),
         })),
