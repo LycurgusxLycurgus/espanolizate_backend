@@ -3,7 +3,7 @@ import { z } from 'zod';
 import ky from 'ky';
 
 const whatsappApi = ky.create({
-  prefixUrl: 'https://graph.facebook.com/v12.0/',
+  prefixUrl: 'https://graph.facebook.com/v20.0/',
   headers: {
     'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
