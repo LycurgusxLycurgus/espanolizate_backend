@@ -3,7 +3,7 @@ import { z } from 'zod';
 import ky from 'ky';
 
 const whatsappApi = ky.create({
-  prefixUrl: 'https://graph.facebook.com/v12.0',
+  prefixUrl: 'https://graph.facebook.com/v12.0/',
   headers: {
     'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 
 }
 
 async function sendWhatsAppMessage(to: string, text: string) {
-  await whatsappApi.post(`/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+  await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
     json: {
       messaging_product: 'whatsapp',
       to,

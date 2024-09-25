@@ -127,7 +127,7 @@
               ],
               "body": {
                 "mode": "raw",
-                "raw": "{\n    \"object\": \"whatsapp_business_account\",\n    \"entry\": [\n        {\n            \"changes\": [\n                {\n                    \"value\": {\n                        \"messages\": [\n                            {\n                                \"from\": \"+1234567890\",\n                                \"text\": { \"body\": \"Hello!\" }\n                            }\n                        ]\n                    }\n                }\n            ]\n        }\n    ]\n}"
+                "raw": "{\n    \"object\": \"whatsapp_business_account\",\n    \"entry\": [\n        {\n            \"changes\": [\n                {\n                    \"field\": \"messages\",\n                    \"value\": {\n                        \"messages\": [\n                            {\n                                \"from\": \"recipient_phone_number\",\n                                \"type\": \"text\",\n                                \"text\": {\n                                    \"body\": \"Hola, ¿cómo estás?\"\n                                }\n                            }\n                        ]\n                    }\n                }\n            ]\n        }\n    ]\n}"
               },
               "url": {
                 "raw": "http://localhost:3000/webhook",
@@ -172,4 +172,3 @@
       }
     ]
   }
-  
