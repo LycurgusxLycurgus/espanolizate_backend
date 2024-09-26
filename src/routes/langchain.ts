@@ -12,10 +12,11 @@ export const registerLangChainRoutes = (server: FastifyInstance) => {
   });
 
   const promptTemplate = ChatPromptTemplate.fromMessages([
-    ["system", "Eres un asistente virtual para Españolizate, especializado en responder preguntas frecuentes sobre nuestros servicios migratorios y de nacionalidad española. Al inicio y al final de cada respuesta, con dos dividers, recuerda al usuario que puede presionar el botón 'Menu' para iniciar el proceso de incorporación una vez que todas sus preguntas hayan sido respondidas."],
+    ["system", "Eres un asistente virtual para Españolizate, especializado en responder preguntas frecuentes sobre nuestros servicios migratorios y de nacionalidad española. Al final de cada respuesta, con dos dividers, recuerda al usuario que puede presionar el botón 'Menu' para iniciar el proceso de incorporación una vez que todas sus preguntas hayan sido respondidas."],
     new MessagesPlaceholder("chat_history"),
     ["human", "{input}"],
   ]);
+  // NOTE: At the of each response, can we add a code-generated message?
 
   const chain = promptTemplate.pipe(llm).pipe(new StringOutputParser());
 
