@@ -143,7 +143,8 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
 
 🔗 https://pay.hotmart.com/V95372989N?off=j68zq7ud&checkoutMode=10 🔗
     `;
-    await sendWhatsAppMessage(from, preFabMessage, messageId);
+    const trimmedMessage = trimMessage(preFabMessage, 1000); // Trim to 1000 characters
+    await sendWhatsAppMessage(from, trimmedMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
   } else if (text === 'menu' || text === 'menu_button') {
     await sendInteractiveList(from, 'Por favor, elige una opción:', [
@@ -164,7 +165,11 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
     });
 
     const { response: aiResponse } = await response.json();
-    await sendWhatsAppMessage(from, aiResponse, messageId, true); // Set includeButton to true
+
+    const trimmedAiResponse = trimMessage(aiResponse, 1000); // Trim to 1000 characters
+    const finalResponse = `${trimmedAiResponse}\n\n---------------------\n\nPuedes presionar el botón 'Menu' para iniciar el proceso de incorporación una vez que se hayan respondido todas tus preguntas.`;
+
+    await sendWhatsAppMessage(from, finalResponse, messageId, true); // Set includeButton to true
     server.log.info(`AI response sent to ${from}`);
   }
 }
@@ -179,6 +184,7 @@ export async function sendWhatsAppMessage(
   let messageBody: any;
 
   if (includeButton) {
+    const trimmedText = trimMessage(text, 1000); // Trim text to 1000 characters
     messageBody = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
@@ -187,7 +193,7 @@ export async function sendWhatsAppMessage(
       interactive: {
         type: 'button',
         body: {
-          text: text
+          text: trimmedText
         },
         action: {
           buttons: [
@@ -203,13 +209,14 @@ export async function sendWhatsAppMessage(
       }
     };
   } else {
+    const trimmedText = trimMessage(text, 1024); // Trim text to 1024 characters
     messageBody = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to,
       type: 'text',
       text: {
-        body: text
+        body: trimmedText
       }
     };
   }
@@ -240,9 +247,13 @@ export async function sendWhatsAppMessage(
   }
 }
 
-// Helper function para validar títulos
-function validateTitle(title: string): string {
-  return title.length > 24 ? title.substring(0, 24) : title;
+// Helper function to trim messages to a specific length
+function trimMessage(message: string, maxLength: number): string {
+  if (message.length > maxLength) {
+    console.warn(`Message exceeded ${maxLength} characters and was trimmed.`);
+    return message.substring(0, maxLength - 3) + '...';
+  }
+  return message;
 }
 
 // Function to send an interactive list
@@ -258,6 +269,8 @@ export async function sendInteractiveList(
     description: 'Descripción si es necesaria', // Opcional
   }));
 
+  const trimmedText = trimMessage(text, 1024); // Ensure text is within limit
+
   const messageBody = {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
@@ -270,7 +283,7 @@ export async function sendInteractiveList(
         text: 'Elige una opción',
       },
       body: {
-        text,
+        text: trimmedText,
       },
       footer: {
         text: 'Selecciona una opción de la lista',
@@ -294,4 +307,9 @@ export async function sendInteractiveList(
   } catch (error) {
     console.error('Error sending interactive list:', error);
   }
+}
+
+// Helper function para validar títulos
+function validateTitle(title: string): string {
+  return title.length > 24 ? title.substring(0, 24) : title;
 }
