@@ -147,12 +147,12 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
     server.log.info(`Auto-respond message sent to ${from}`);
   } else if (text === 'menu' || text === 'menu_button') {
     await sendInteractiveList(from, 'Por favor, elige una opción:', [
-      { id: '1', title: 'PADRES O ABUELOS' },
-      { id: '2', title: 'TRABAJAR EN ESPAÑA' },
-      { id: '3', title: 'OBTENER NACIONALIDAD' },
-      { id: '4', title: 'ESTUDIOS Y POSTGRADOS' },
-      { id: '5', title: 'OTROS' },
-      { id: '6', title: 'NO POR EL MOMENTO' },
+      { id: '1', title: 'Padres o Abuelos' }, // Título ajustado
+      { id: '2', title: 'Trabajar en España' },
+      { id: '3', title: 'Obtener Nacionalidad' },
+      { id: '4', title: 'Estudios y Postgrados' },
+      { id: '5', title: 'Otros Servicios' }, // Título ajustado
+      { id: '6', title: 'No Necesito Ayuda' }, // Título ajustado
     ]);
     server.log.info(`Interactive list sent to ${from}`);
   } else {
@@ -225,12 +225,24 @@ export async function sendWhatsAppMessage(
   }
 }
 
+// Helper function para validar títulos
+function validateTitle(title: string): string {
+  return title.length > 24 ? title.substring(0, 24) : title;
+}
+
 // Function to send an interactive list
 export async function sendInteractiveList(
   to: string,
   text: string,
   options: Array<{ id: string; title: string }>
 ) {
+  // Validar y sanitizar los títulos
+  const sanitizedOptions = options.map(option => ({
+    id: option.id,
+    title: validateTitle(option.title),
+    description: 'Descripción si es necesaria', // Opcional
+  }));
+
   const messageBody = {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
@@ -253,11 +265,7 @@ export async function sendInteractiveList(
         sections: [
           {
             title: 'Opciones',
-            rows: options.map((option) => ({
-              id: option.id,
-              title: option.title,
-              description: 'Descripción si es necesaria', // Optional: You can customize or remove this
-            })),
+            rows: sanitizedOptions,
           },
         ],
       },

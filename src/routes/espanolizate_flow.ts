@@ -37,12 +37,12 @@ Su puerta de entrada legal a Europa 🇪🇺
 
 Por favor, seleccione la opción que corresponda a su consulta:`,
     options: [
-      { id: '1', title: 'Padres o abuelos españoles', nextStep: 'step3' },
-      { id: '2', title: 'Trabajar en España', nextStep: 'step6' },
-      { id: '3', title: 'Obtener nacionalidad española', nextStep: 'step9' },
-      { id: '4', title: 'Estudios y postgrados', nextStep: 'step2' },
-      { id: '5', title: 'Otros servicios', nextStep: 'step34' },
-      { id: '6', title: 'No necesito ayuda por el momento', nextStep: 'step25' },
+      { id: '1', title: 'Padres o Abuelos' }, // Título ajustado
+      { id: '2', title: 'Trabajar en España' }, // 19 caracteres
+      { id: '3', title: 'Obtener Nacionalidad' }, // 21 caracteres
+      { id: '4', title: 'Estudios y Postgrados' }, // 22 caracteres
+      { id: '5', title: 'Otros Servicios' }, // Título ajustado
+      { id: '6', title: 'No Necesito Ayuda' }, // Título ajustado
     ],
   },
   step3: {
