@@ -37,70 +37,69 @@ Su puerta de entrada legal a Europa 🇪🇺
 
 Por favor, seleccione la opción que corresponda a su consulta:`,
     options: [
-      { id: '1', title: 'Padres o Abuelos' }, // Título ajustado
-      { id: '2', title: 'Trabajar en España' }, // 19 caracteres
-      { id: '3', title: 'Obtener Nacionalidad' }, // 21 caracteres
-      { id: '4', title: 'Estudios y Postgrados' }, // 22 caracteres
-      { id: '5', title: 'Otros Servicios' }, // Título ajustado
-      { id: '6', title: 'No Necesito Ayuda' }, // Título ajustado
+      { id: '1', title: 'PADRES O ABUELOS', nextStep: 'step3' },
+      { id: '2', title: 'TRABAJAR EN ESPAÑA', nextStep: 'step6' },
+      { id: '3', title: 'OBTENER NACIONALIDAD', nextStep: 'step9' },
+      { id: '4', title: 'ESTUDIOS Y POSTGRADOS', nextStep: 'step2' },
+      { id: '5', title: 'OTROS', nextStep: 'step34' },
+      { id: '6', title: 'NO POR EL MOMENTO', nextStep: 'step25' },
     ],
   },
   step3: {
-    message: `¿Podría indicarnos qué tipo de gestión específica necesita tramitar?`,
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
     options: [
-      { id: '1', title: 'Nacionalidad por padre español', nextStep: 'step31' },
-      { id: '2', title: 'Nacionalidad por abuelo español', nextStep: 'step31' },
-      { id: '3', title: 'Reunificación familiar', nextStep: 'step31' },
-      { id: '4', title: 'Otras gestiones relacionadas', nextStep: 'step31' },
+      { id: '1', title: 'PADRE', nextStep: 'step31' },
+      { id: '2', title: 'ABUELO', nextStep: 'step31' },
+      { id: '3', title: 'REUNIFICACIÓN FAMILIAR', nextStep: 'step31' },
+      { id: '4', title: 'OTROS', nextStep: 'step31' },
     ],
   },
   step6: {
-    message: `¿Qué tipo de trabajo en España le interesa?`,
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
     options: [
-      { id: '1', title: 'Trabajo por cuenta propia', nextStep: 'step31' },
-      { id: '2', title: 'Trabajo por cuenta ajena', nextStep: 'step31' },
-      { id: '3', title: 'Profesional altamente cualificado', nextStep: 'step31' },
-      { id: '4', title: 'Otras opciones laborales', nextStep: 'step31' },
+      { id: '1', title: 'CUENTA PROPIA', nextStep: 'step31' },
+      { id: '2', title: 'CUENTA AJENA', nextStep: 'step31' },
+      { id: '3', title: 'PROFESIONAL CALIFICADO', nextStep: 'step31' },
+      { id: '4', title: 'OTRO', nextStep: 'step31' },
     ],
   },
   step9: {
-    message: `¿Qué tipo de trámite de nacionalidad española desea realizar?`,
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
     options: [
-      { id: '1', title: 'Trámite individual', nextStep: 'step31' },
-      { id: '2', title: 'Trámite familiar', nextStep: 'step31' },
+      { id: '1', title: 'INDIVIDUAL', nextStep: 'step31' },
+      { id: '2', title: 'FAMILIA', nextStep: 'step31' },
     ],
   },
   step2: {
-    message: `¿Qué tipo de estudios le interesan en España?`,
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
     options: [
-      { id: '1', title: 'Estudios de pregrado', nextStep: 'step31' },
-      { id: '2', title: 'Estudios de postgrado', nextStep: 'step31' },
-      { id: '3', title: 'Información sobre becas', nextStep: 'step31' },
-      { id: '4', title: 'Otros programas educativos', nextStep: 'step31' },
+      { id: '1', title: 'PREGRADO', nextStep: 'step31' },
+      { id: '2', title: 'POSTGRADO', nextStep: 'step31' },
+      { id: '3', title: 'BECAS', nextStep: 'step31' },
+      { id: '4', title: 'OTROS', nextStep: 'step31' },
     ],
   },
   step34: {
-    message: `¿Qué otro tipo de servicio está buscando?`,
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
     options: [
-      { id: '1', title: 'Consultoría general', nextStep: 'step31' },
-      { id: '2', title: 'Servicios específicos', nextStep: 'step31' },
-      { id: '3', title: 'Otras consultas', nextStep: 'step31' },
+      { id: '1', title: 'CONSULTORÍA GENERAL', nextStep: 'step31' },
+      { id: '2', title: 'SERVICIOS ESPECÍFICOS', nextStep: 'step31' },
+      { id: '3', title: 'OTROS', nextStep: 'step31' },
     ],
   },
   step25: {
-    message: `Entendido. Si en el futuro tiene alguna consulta, no dude en contactarnos. Estaremos encantados de ayudarle.`,
+    message: `Perfecto, si tiene alguna consulta no dude en contáctarnos.`,
     final: true,
   },
   step31: {
-    message: `Gracias por proporcionarnos esta información. Uno de nuestros asesores especializados se pondrá en contacto con usted a la brevedad.
+    message: `Muchas gracias por la información, uno de nuestros asesores le contactará en breve.
 
-Si su consulta es urgente, no dude en llamarnos directamente:
+Si su consulta es muy urgente.
+No dude en contactarnos al ☎️ 
 
-🇨🇱 Chile: +56 99 639 6692 
-🇵🇪 Perú: +51 75 738 2990
-🇪🇸 España: +34 660 592 796
-
-Estamos aquí para ayudarle en su proceso migratorio. ¡Que tenga un excelente día!`,
+🇨🇱 +56996396692 
+🇵🇪 +51757382990
+🇪🇸 +34660592796`,
     final: true,
   },
 };
