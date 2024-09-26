@@ -6,8 +6,9 @@ import { z } from 'zod';
 
 export const registerLangChainRoutes = (server: FastifyInstance) => {
   const llm = new ChatGroq({
-    model: "llama-3.1-8b-instant",
+    model: "llama-3.2-11b-text-preview",
     temperature: 0.7,
+    maxTokens: 250,
     apiKey: process.env.GROQ_API_KEY,
   });
 
