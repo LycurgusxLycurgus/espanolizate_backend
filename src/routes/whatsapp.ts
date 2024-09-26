@@ -145,7 +145,7 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string)
             type: 'reply',
             reply: {
               id: 'menu_button',
-              title: 'Menu'
+              title: 'menu'
             }
           }
         ]
