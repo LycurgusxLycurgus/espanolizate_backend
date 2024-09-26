@@ -23,7 +23,7 @@ const __dirname = dirname(__filename);
 
 // Initialize lowdb
 const dbFile = join(__dirname, 'db.json');
-const adapter = new JSONFile<{ conversations: Record<string, any[]>, autoRespond: Record<string, boolean> }>(dbFile);
+const adapter = new JSONFile<{ conversations: Record<string, any>, autoRespond: Record<string, boolean> }>(dbFile);
 const defaultData = { conversations: {}, autoRespond: {} };
 const db = new Low(adapter, defaultData);
 
@@ -34,10 +34,10 @@ const server = fastify({
     transport: {
       target: 'pino-pretty',
       options: {
-        colorize: true
-      }
-    }
-  }
+        colorize: true,
+      },
+    },
+  },
 })
   .setValidatorCompiler(validatorCompiler)
   .setSerializerCompiler(serializerCompiler)
@@ -53,7 +53,7 @@ server.register(fastifyStatic, {
 // Extend FastifyInstance type
 declare module 'fastify' {
   interface FastifyInstance {
-    db: Low<{ conversations: Record<string, any[]>, autoRespond: Record<string, boolean> }>;
+    db: Low<{ conversations: Record<string, any>, autoRespond: Record<string, boolean> }>;
   }
 }
 
