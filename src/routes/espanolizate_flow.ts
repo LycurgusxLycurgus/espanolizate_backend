@@ -37,69 +37,68 @@ Su puerta de entrada legal a Europa 🇪🇺
 
 Por favor, seleccione la opción que corresponda a su consulta:`,
     options: [
-      { id: '1', title: 'PADRES O ABUELOS', nextStep: 'step3' },
-      { id: '2', title: 'TRABAJAR EN ESPAÑA', nextStep: 'step6' },
-      { id: '3', title: 'OBTENER NACIONALIDAD', nextStep: 'step9' },
-      { id: '4', title: 'ESTUDIOS Y POSTGRADOS', nextStep: 'step2' },
-      { id: '5', title: 'OTROS', nextStep: 'step34' },
-      { id: '6', title: 'NO POR EL MOMENTO', nextStep: 'step25' },
+      { id: '1', title: 'Ascendencia española', nextStep: 'step3' },
+      { id: '2', title: 'Trabajo en España', nextStep: 'step6' },
+      { id: '3', title: 'Nacionalidad española', nextStep: 'step9' },
+      { id: '4', title: 'Estudios en España', nextStep: 'step2' },
+      { id: '5', title: 'Otros servicios', nextStep: 'step34' },
+      { id: '6', title: 'No necesito ayuda', nextStep: 'step25' },
     ],
   },
   step3: {
-    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    message: `¿Qué tipo de gestión relacionada con ascendencia española necesita tramitar?`,
     options: [
-      { id: '1', title: 'PADRE', nextStep: 'step31' },
-      { id: '2', title: 'ABUELO', nextStep: 'step31' },
-      { id: '3', title: 'REUNIFICACIÓN FAMILIAR', nextStep: 'step31' },
-      { id: '4', title: 'OTROS', nextStep: 'step31' },
+      { id: '1', title: 'Padre español', nextStep: 'step31' },
+      { id: '2', title: 'Abuelo español', nextStep: 'step31' },
+      { id: '3', title: 'Reunificación familiar', nextStep: 'step31' },
+      { id: '4', title: 'Otras consultas', nextStep: 'step31' },
     ],
   },
   step6: {
-    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    message: `¿Qué tipo de gestión laboral en España le interesa?`,
     options: [
-      { id: '1', title: 'CUENTA PROPIA', nextStep: 'step31' },
-      { id: '2', title: 'CUENTA AJENA', nextStep: 'step31' },
-      { id: '3', title: 'PROFESIONAL CALIFICADO', nextStep: 'step31' },
-      { id: '4', title: 'OTRO', nextStep: 'step31' },
+      { id: '1', title: 'Trabajo por cuenta propia', nextStep: 'step31' },
+      { id: '2', title: 'Trabajo por cuenta ajena', nextStep: 'step31' },
+      { id: '3', title: 'Profesional calificado', nextStep: 'step31' },
+      { id: '4', title: 'Otras opciones', nextStep: 'step31' },
     ],
   },
   step9: {
-    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    message: `¿Qué tipo de trámite de nacionalidad española desea realizar?`,
     options: [
-      { id: '1', title: 'INDIVIDUAL', nextStep: 'step31' },
-      { id: '2', title: 'FAMILIA', nextStep: 'step31' },
+      { id: '1', title: 'Nacionalidad individual', nextStep: 'step31' },
+      { id: '2', title: 'Nacionalidad familiar', nextStep: 'step31' },
     ],
   },
   step2: {
-    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    message: `¿Qué tipo de estudios en España le interesan?`,
     options: [
-      { id: '1', title: 'PREGRADO', nextStep: 'step31' },
-      { id: '2', title: 'POSTGRADO', nextStep: 'step31' },
-      { id: '3', title: 'BECAS', nextStep: 'step31' },
-      { id: '4', title: 'OTROS', nextStep: 'step31' },
+      { id: '1', title: 'Estudios de grado', nextStep: 'step31' },
+      { id: '2', title: 'Estudios de posgrado', nextStep: 'step31' },
+      { id: '3', title: 'Becas disponibles', nextStep: 'step31' },
+      { id: '4', title: 'Otras opciones', nextStep: 'step31' },
     ],
   },
   step34: {
-    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    message: `¿Qué otro tipo de servicio necesita?`,
     options: [
-      { id: '1', title: 'CONSULTORÍA GENERAL', nextStep: 'step31' },
-      { id: '2', title: 'SERVICIOS ESPECÍFICOS', nextStep: 'step31' },
-      { id: '3', title: 'OTROS', nextStep: 'step31' },
+      { id: '1', title: 'Consultoría general', nextStep: 'step31' },
+      { id: '2', title: 'Servicios específicos', nextStep: 'step31' },
+      { id: '3', title: 'Otras consultas', nextStep: 'step31' },
     ],
   },
   step25: {
-    message: `Perfecto, si tiene alguna consulta no dude en contáctarnos.`,
+    message: `Entendido. Si en el futuro necesita ayuda, no dude en contactarnos. Estaremos encantados de asistirle.`,
     final: true,
   },
   step31: {
-    message: `Muchas gracias por la información, uno de nuestros asesores le contactará en breve.
+    message: `Gracias por proporcionarnos esta información. Uno de nuestros asesores se pondrá en contacto con usted en breve.
 
-Si su consulta es muy urgente.
-No dude en contactarnos al ☎️ 
+Si su consulta es urgente, no dude en llamarnos:
 
-🇨🇱 +56996396692 
-🇵🇪 +51757382990
-🇪🇸 +34660592796`,
+🇨🇱 Chile: +56 99 639 6692 
+🇵🇪 Perú: +51 75 738 2990
+🇪🇸 España: +34 660 592 796`,
     final: true,
   },
 };
@@ -160,40 +159,47 @@ export const handleEspanolizateMessage = async (
       if (userState && flow[userState]) {
         const nextStep = flow[userState];
         await sendFlowStep(from, nextStep);
+        
+        // If it's a final step, reset the state but don't stop the chatbot
+        if (nextStep.final) {
+          db.data.conversations[from].state = null;
+        }
       } else {
-        // Final message or undefined next step
-        await sendWhatsAppMessage(
-          from,
-          "Gracias por tu interés. Nos pondremos en contacto contigo pronto."
-        );
-        db.data.conversations[from].state = null; // Reset state
+        // Undefined next step, reset state
+        db.data.conversations[from].state = null;
       }
     } else {
-      // Since using interactive lists, this block may not be reached.
-      // However, keeping a generic fallback just in case.
-      await sendWhatsAppMessage(
-        from,
-        "Parece que no has elegido una opción válida. Por favor, selecciona una opción de la lista."
-      );
-      await sendFlowStep(from, currentStep);
+      // No valid option selected, proceed with LLM response
+      await handleLLMResponse(server, from, text, messageId);
     }
   } else {
     // Default case: Process with existing chatbot logic
-    const response = await server.inject({
-      method: 'POST',
-      url: '/generate',
-      payload: { input: text, phoneNumber: from },
-    });
-
-    const { response: aiResponse } = await response.json();
-
-    // Append the reminder to the response
-    const reminder =
-      "Recuerda que puedes presionar el botón 'Menu' para iniciar el proceso de incorporación una vez que se hayan respondido todas tus preguntas.";
-    const finalResponse = `${reminder}\n\n${aiResponse}\n\n${reminder}`;
-
-    await sendWhatsAppMessage(from, finalResponse, messageId, true); // Include 'Menu' button
+    await handleLLMResponse(server, from, text, messageId);
   }
 
   await db.write();
 };
+
+// New helper function to handle LLM responses
+async function handleLLMResponse(
+  server: FastifyInstance,
+  from: string,
+  text: string,
+  messageId: string
+) {
+  const response = await server.inject({
+    method: 'POST',
+    url: '/generate',
+    payload: { input: text, phoneNumber: from },
+  });
+
+  const { response: aiResponse } = await response.json();
+
+  // Append the reminder to the response
+  const reminder =
+    "Recuerda que puedes presionar el botón 'Menu' para iniciar el proceso de incorporación una vez que se hayan respondido todas tus preguntas.";
+const divider = "-------"; // Simple hyphen divider
+const finalResponse = `${reminder}\n\n${divider}\n\n${aiResponse}\n\n${divider}\n\n${reminder}`;
+
+  await sendWhatsAppMessage(from, finalResponse, messageId, true); // Include 'Menu' button
+}
