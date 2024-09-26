@@ -266,7 +266,7 @@ export async function sendInteractiveList(
   const sanitizedOptions = options.map(option => ({
     id: option.id,
     title: validateTitle(option.title),
-    description: 'Descripción si es necesaria', // Opcional
+    description: 'Elige y envía', // Opcional
   }));
 
   const trimmedText = trimMessage(text, 1024); // Ensure text is within limit
