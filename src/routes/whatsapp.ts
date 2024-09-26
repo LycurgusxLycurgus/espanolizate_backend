@@ -138,9 +138,13 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
   } else if (text.toLowerCase() === 'menu' || text === 'menu_button') {
     await sendInteractiveList(from, 'Por favor, elige una opción:', ['Chatbot', 'Assistant']);
     server.log.info(`Interactive list sent to ${from}`);
-  } else if (text === 'option_1' || text === 'option_2') {
-    // Handle 'Chatbot' or 'Assistant' option
-    await sendWhatsAppMessage(from, `Has seleccionado la opción ${text === 'option_1' ? 'Chatbot' : 'Assistant'}.`, messageId);
+  } else if (text === 'option_1') {
+    // Handle 'Chatbot' option
+    await sendWhatsAppMessage(from, 'Has seleccionado la opción Chatbot.', messageId);
+    // Additional logic if needed
+  } else if (text === 'option_2') {
+    // Handle 'Assistant' option
+    await sendWhatsAppMessage(from, 'Has seleccionado la opción Assistant.', messageId);
     // Additional logic if needed
   } else {
     // Default case: Process the message with LangChain
@@ -150,17 +154,40 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
       payload: { input: text, phoneNumber: from },
     });
 
-    const { response: aiResponse, isGroqResponse } = await response.json();
-    await sendWhatsAppMessage(from, aiResponse, messageId, isGroqResponse);
+    const { response: aiResponse } = await response.json();
+    await sendWhatsAppMessage(from, aiResponse, messageId, true); // Set includeButton to true
     server.log.info(`AI response sent to ${from}`);
   }
 }
 
-async function sendWhatsAppMessage(to: string, text: string, messageId?: string, isGroqResponse: boolean = false) {
-  if (isGroqResponse) {
-    await sendWhatsAppMessageWithButton(to, text, messageId);
+async function sendWhatsAppMessage(to: string, text: string, messageId?: string, includeButton: boolean = false) {
+  let messageBody: any;
+
+  if (includeButton) {
+    messageBody = {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: {
+          text: text
+        },
+        action: {
+          buttons: [
+            {
+              type: 'reply',
+              reply: {
+                id: 'menu_button',
+                title: 'Menu'
+              }
+            }
+          ]
+        }
+      }
+    };
   } else {
-    const messageBody: any = {
+    messageBody = {
       messaging_product: 'whatsapp',
       to,
       type: 'text',
@@ -168,40 +195,7 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string,
         body: text,
       },
     };
-
-    if (messageId) {
-      messageBody.context = { message_id: messageId };
-    }
-
-    await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-      json: messageBody,
-    });
   }
-}
-
-async function sendWhatsAppMessageWithButton(to: string, text: string, messageId?: string) {
-  const messageBody: any = {
-    messaging_product: 'whatsapp',
-    to,
-    type: 'interactive',
-    interactive: {
-      type: 'button',
-      body: {
-        text: text
-      },
-      action: {
-        buttons: [
-          {
-            type: 'reply',
-            reply: {
-              id: 'menu_button',
-              title: 'Menu'
-            }
-          }
-        ]
-      }
-    }
-  };
 
   if (messageId) {
     messageBody.context = { message_id: messageId };
