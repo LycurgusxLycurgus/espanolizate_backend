@@ -1,9 +1,6 @@
-// src/routes/whatsapp.ts
-
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import ky from 'ky';
-import { handleEspanolizateFlow } from './espanolizate_flow.js'; // Import the Españolizate handler
 
 const whatsappApi = ky.create({
   prefixUrl: 'https://graph.facebook.com/v20.0/',
@@ -20,8 +17,8 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
       entry: Array<{
         changes: Array<{
           value: {
-            messages?: Array<any>;
-            statuses?: Array<any>;
+            messages?: Array<any>; // Made messages optional
+            statuses?: Array<any>; // Optional: handle statuses if needed
           };
         }>;
       }>;
@@ -33,7 +30,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
         entry: z.array(z.object({
           changes: z.array(z.object({
             value: z.object({
-              messages: z.array(z.any()).optional(),
+              messages: z.array(z.any()).optional(), // Made messages optional
               statuses: z.array(z.any()).optional(),
             }),
           })),
@@ -105,11 +102,8 @@ async function processIncomingMessage(server: FastifyInstance, message: any) {
     server.log.info(`Received unsupported message type: ${message.type}`);
   }
 
-  // Determine if the message should be handled by Españolizate flow
-  // You can implement logic to decide based on message content or user state
-  // For simplicity, we'll assume all messages go to Españolizate flow
-
-  await handleEspanolizateFlow(server, from, text, messageId);
+  // Proceed with your existing logic using the extracted 'text'
+  await handleMessageText(server, from, text, messageId);
 }
 
 async function handleMessageText(server: FastifyInstance, from: string, text: string, messageId: string) {
@@ -142,10 +136,7 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
     await sendWhatsAppMessage(from, preFabMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
   } else if (text.toLowerCase() === 'menu' || text === 'menu_button') {
-    await sendInteractiveList(from, 'Por favor, elige una opción:', [
-      { id: 'chatbot', title: 'Chatbot' },
-      { id: 'assistant', title: 'Assistant' },
-    ]);
+    await sendInteractiveList(from, 'Por favor, elige una opción:', ['Chatbot', 'Assistant']);
     server.log.info(`Interactive list sent to ${from}`);
   } else if (text === 'option_1') {
     // Handle 'Chatbot' option
@@ -169,7 +160,7 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
   }
 }
 
-export async function sendWhatsAppMessage(to: string, text: string, messageId?: string, includeButton: boolean = false) {
+async function sendWhatsAppMessage(to: string, text: string, messageId?: string, includeButton: boolean = false) {
   let messageBody: any;
 
   if (includeButton) {
@@ -180,7 +171,7 @@ export async function sendWhatsAppMessage(to: string, text: string, messageId?: 
       interactive: {
         type: 'button',
         body: {
-          text: text,
+          text: text
         },
         action: {
           buttons: [
@@ -188,12 +179,12 @@ export async function sendWhatsAppMessage(to: string, text: string, messageId?: 
               type: 'reply',
               reply: {
                 id: 'menu_button',
-                title: 'Menu',
-              },
-            },
-          ],
-        },
-      },
+                title: 'Menu'
+              }
+            }
+          ]
+        }
+      }
     };
   } else {
     messageBody = {
@@ -215,7 +206,7 @@ export async function sendWhatsAppMessage(to: string, text: string, messageId?: 
   });
 }
 
-export async function sendInteractiveList(to: string, text: string, options: Array<{ id: string; title: string }>) {
+async function sendInteractiveList(to: string, text: string, options: string[]) {
   const messageBody = {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
@@ -238,9 +229,10 @@ export async function sendInteractiveList(to: string, text: string, options: Arr
         sections: [
           {
             title: 'Opciones',
-            rows: options.map(option => ({
-              id: option.id,
-              title: option.title,
+            rows: options.map((option, index) => ({
+              id: `option_${index + 1}`,
+              title: option,
+              description: 'Descripción si es necesaria',
             })),
           },
         ],
