@@ -21,11 +21,26 @@ config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Initialize lowdb
+// Define the structure of the database
+type Conversation = {
+  messages: Array<{
+    timestamp: string;
+    message: string;
+    sender: 'user' | 'ai';
+  }>;
+  state: string | null;
+};
+
+type Database = {
+  conversations: Record<string, Conversation>;
+  autoRespond: Record<string, boolean>;
+};
+
+// Initialize lowdb with the updated schema
 const dbFile = join(__dirname, 'db.json');
-const adapter = new JSONFile<{ conversations: Record<string, any[]>, autoRespond: Record<string, boolean> }>(dbFile);
-const defaultData = { conversations: {}, autoRespond: {} };
-const db = new Low(adapter, defaultData);
+const adapter = new JSONFile<Database>(dbFile);
+const defaultData: Database = { conversations: {}, autoRespond: {} };
+const db = new Low<Database>(adapter, defaultData);
 
 // Initialize Fastify with Zod type provider and pino config
 const server = fastify({
@@ -50,10 +65,10 @@ server.register(fastifyStatic, {
   prefix: '/public/',
 });
 
-// Extend FastifyInstance type
+// Extend FastifyInstance type to include db
 declare module 'fastify' {
   interface FastifyInstance {
-    db: Low<{ conversations: Record<string, any[]>, autoRespond: Record<string, boolean> }>;
+    db: Low<Database>;
   }
 }
 

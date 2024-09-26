@@ -37,21 +37,21 @@ export const registerLangChainRoutes = (server: FastifyInstance) => {
       db.data ||= { conversations: {}, autoRespond: {} };
     }
 
-    const chatHistory = db.data.conversations[phoneNumber] || [];
+    const chatHistory = db.data.conversations[phoneNumber]?.messages || [];
 
     const startTime = Date.now();
     try {
       const response = await chain.invoke({
         input,
-        chat_history: chatHistory.map((entry: { message: string }) => entry.message),
+        chat_history: chatHistory.map((entry) => entry.message),
       });
 
       const latency = Date.now() - startTime;
 
       // Update chat history
-      chatHistory.push({ timestamp: new Date().toISOString(), message: input, sender: 'user' });
-      chatHistory.push({ timestamp: new Date().toISOString(), message: response, sender: 'ai' });
-      db.data.conversations[phoneNumber] = chatHistory.slice(-10); // Keep last 10 messages
+      db.data.conversations[phoneNumber].messages.push({ timestamp: new Date().toISOString(), message: input, sender: 'user' });
+      db.data.conversations[phoneNumber].messages.push({ timestamp: new Date().toISOString(), message: response, sender: 'ai' });
+      db.data.conversations[phoneNumber].messages = db.data.conversations[phoneNumber].messages.slice(-10); // Keep last 10 messages
       await db.write();
 
       server.log.info({ input, output: response, latency }, 'LangChain response generated');

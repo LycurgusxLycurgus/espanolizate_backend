@@ -44,8 +44,8 @@ export const registerConversationRoutes = (server: FastifyInstance) => {
       throw new Error('Database not initialized');
     }
 
-    db.data.conversations[phoneNumber] = db.data.conversations[phoneNumber] || [];
-    db.data.conversations[phoneNumber].push({
+    db.data.conversations[phoneNumber] = db.data.conversations[phoneNumber] || { messages: [], state: null };
+    db.data.conversations[phoneNumber].messages.push({
       timestamp: new Date().toISOString(),
       message,
       sender: 'user',

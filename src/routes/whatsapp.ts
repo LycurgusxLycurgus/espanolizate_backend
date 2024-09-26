@@ -1,11 +1,14 @@
+// src/routes/whatsapp.ts
+
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import ky from 'ky';
+import { handleEspanolizateMessage } from './espanolizate_flow.js'; // Ensure correct path
 
 const whatsappApi = ky.create({
   prefixUrl: 'https://graph.facebook.com/v20.0/',
   headers: {
-    'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+    Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
   },
 });
@@ -27,14 +30,18 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
     schema: {
       body: z.object({
         object: z.string(),
-        entry: z.array(z.object({
-          changes: z.array(z.object({
-            value: z.object({
-              messages: z.array(z.any()).optional(), // Made messages optional
-              statuses: z.array(z.any()).optional(),
-            }),
-          })),
-        })),
+        entry: z.array(
+          z.object({
+            changes: z.array(
+              z.object({
+                value: z.object({
+                  messages: z.array(z.any()).optional(), // Made messages optional
+                  statuses: z.array(z.any()).optional(),
+                }),
+              })
+            ),
+          })
+        ),
       }),
     },
   }, async (request, reply) => {
@@ -83,6 +90,7 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
   });
 };
 
+// Function to process incoming messages
 async function processIncomingMessage(server: FastifyInstance, message: any) {
   const from = message.from;
   const messageId = message.id;
@@ -100,12 +108,14 @@ async function processIncomingMessage(server: FastifyInstance, message: any) {
   } else {
     // Handle other message types if necessary
     server.log.info(`Received unsupported message type: ${message.type}`);
+    return;
   }
 
-  // Proceed with your existing logic using the extracted 'text'
-  await handleMessageText(server, from, text, messageId);
+  // Route the message to the Españolizate flow handler
+  await handleEspanolizateMessage(server, from, text, messageId);
 }
 
+// Function to handle sending messages and interactive lists
 async function handleMessageText(server: FastifyInstance, from: string, text: string, messageId: string) {
   const { db } = server;
 
@@ -135,17 +145,16 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
     `;
     await sendWhatsAppMessage(from, preFabMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
-  } else if (text.toLowerCase() === 'menu' || text === 'menu_button') {
-    await sendInteractiveList(from, 'Por favor, elige una opción:', ['Chatbot', 'Assistant']);
+  } else if (text === 'menu' || text === 'menu_button') {
+    await sendInteractiveList(from, 'Por favor, elige una opción:', [
+      { id: '1', title: 'PADRES O ABUELOS' },
+      { id: '2', title: 'TRABAJAR EN ESPAÑA' },
+      { id: '3', title: 'OBTENER NACIONALIDAD' },
+      { id: '4', title: 'ESTUDIOS Y POSTGRADOS' },
+      { id: '5', title: 'OTROS' },
+      { id: '6', title: 'NO POR EL MOMENTO' },
+    ]);
     server.log.info(`Interactive list sent to ${from}`);
-  } else if (text === 'option_1') {
-    // Handle 'Chatbot' option
-    await sendWhatsAppMessage(from, 'Has seleccionado la opción Chatbot.', messageId);
-    // Additional logic if needed
-  } else if (text === 'option_2') {
-    // Handle 'Assistant' option
-    await sendWhatsAppMessage(from, 'Has seleccionado la opción Assistant.', messageId);
-    // Additional logic if needed
   } else {
     // Default case: Process the message with LangChain
     const response = await server.inject({
@@ -160,7 +169,13 @@ Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 U
   }
 }
 
-async function sendWhatsAppMessage(to: string, text: string, messageId?: string, includeButton: boolean = false) {
+// Function to send a text message
+export async function sendWhatsAppMessage(
+  to: string,
+  text: string,
+  messageId?: string,
+  includeButton: boolean = false
+) {
   let messageBody: any;
 
   if (includeButton) {
@@ -171,7 +186,7 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string,
       interactive: {
         type: 'button',
         body: {
-          text: text
+          text: text,
         },
         action: {
           buttons: [
@@ -179,12 +194,12 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string,
               type: 'reply',
               reply: {
                 id: 'menu_button',
-                title: 'Menu'
-              }
-            }
-          ]
-        }
-      }
+                title: 'Menu',
+              },
+            },
+          ],
+        },
+      },
     };
   } else {
     messageBody = {
@@ -201,12 +216,21 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string,
     messageBody.context = { message_id: messageId };
   }
 
-  await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-    json: messageBody,
-  });
+  try {
+    await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+      json: messageBody,
+    });
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error);
+  }
 }
 
-async function sendInteractiveList(to: string, text: string, options: string[]) {
+// Function to send an interactive list
+export async function sendInteractiveList(
+  to: string,
+  text: string,
+  options: Array<{ id: string; title: string }>
+) {
   const messageBody = {
     messaging_product: 'whatsapp',
     recipient_type: 'individual',
@@ -229,10 +253,10 @@ async function sendInteractiveList(to: string, text: string, options: string[]) 
         sections: [
           {
             title: 'Opciones',
-            rows: options.map((option, index) => ({
-              id: `option_${index + 1}`,
-              title: option,
-              description: 'Descripción si es necesaria',
+            rows: options.map((option) => ({
+              id: option.id,
+              title: option.title,
+              description: 'Descripción si es necesaria', // Optional: You can customize or remove this
             })),
           },
         ],
@@ -240,7 +264,11 @@ async function sendInteractiveList(to: string, text: string, options: string[]) 
     },
   };
 
-  await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-    json: messageBody,
-  });
+  try {
+    await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+      json: messageBody,
+    });
+  } catch (error) {
+    console.error('Error sending interactive list:', error);
+  }
 }
