@@ -181,12 +181,13 @@ export async function sendWhatsAppMessage(
   if (includeButton) {
     messageBody = {
       messaging_product: 'whatsapp',
+      recipient_type: 'individual',
       to,
       type: 'interactive',
       interactive: {
         type: 'button',
         body: {
-          text: text,
+          text: text
         },
         action: {
           buttons: [
@@ -194,21 +195,22 @@ export async function sendWhatsAppMessage(
               type: 'reply',
               reply: {
                 id: 'menu_button',
-                title: 'Menu',
-              },
-            },
-          ],
-        },
-      },
+                title: 'Menu'
+              }
+            }
+          ]
+        }
+      }
     };
   } else {
     messageBody = {
       messaging_product: 'whatsapp',
+      recipient_type: 'individual',
       to,
       type: 'text',
       text: {
-        body: text,
-      },
+        body: text
+      }
     };
   }
 
@@ -217,11 +219,24 @@ export async function sendWhatsAppMessage(
   }
 
   try {
-    await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-      json: messageBody,
+    const response = await whatsappApi.post(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+      json: messageBody
     });
-  } catch (error) {
+    console.log('WhatsApp API Response:', await response.json());
+  } catch (error: unknown) {
     console.error('Error sending WhatsApp message:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+    }
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const errorWithResponse = error as { response: { text: () => Promise<string> } };
+      try {
+        const errorText = await errorWithResponse.response.text();
+        console.error('Error response:', errorText);
+      } catch (textError) {
+        console.error('Error getting response text:', textError);
+      }
+    }
   }
 }
 
