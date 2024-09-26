@@ -226,7 +226,7 @@ async function sendWhatsAppMessage(server: FastifyInstance, to: string, text: st
             type: 'reply',
             reply: {
               id: 'menu', // Changed payload to 'menu' for consistency
-              title: 'Menu'
+              title: 'menu'
             }
           }
         ]
