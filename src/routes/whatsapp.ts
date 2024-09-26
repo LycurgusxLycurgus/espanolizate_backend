@@ -113,7 +113,7 @@ Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 
     `;
     await sendWhatsAppMessage(from, preFabMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
-  } else if (text.toLowerCase() === 'menu') {
+  } else if (text.toLowerCase() === 'menu' || text === 'menu_button') {
     await sendInteractiveList(from, 'Please choose an option:', ['Chatbot', 'Assistant']);
     server.log.info(`Interactive list sent to ${from}`);
   } else {
@@ -133,8 +133,24 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string)
   const messageBody: any = {
     messaging_product: 'whatsapp',
     to,
-    type: 'text',
-    text: { body: text },
+    type: 'interactive',
+    interactive: {
+      type: 'button',
+      body: {
+        text: text
+      },
+      action: {
+        buttons: [
+          {
+            type: 'reply',
+            reply: {
+              id: 'menu_button',
+              title: 'Menu'
+            }
+          }
+        ]
+      }
+    }
   };
 
   if (messageId) {
