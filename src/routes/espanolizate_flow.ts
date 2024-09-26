@@ -33,7 +33,7 @@ Nos encargamos de asesorar, gestionar y representar a nuestros clientes entregan
 
 Asesoramos, Gestionamos y Tramitamos en todo Chile, Perú y España 🇨🇱🇵🇪🇪🇸. 
 
-Tú entrada legal a Europa 🇪🇺🇪🇺🇪🇺
+Tu entrada legal a Europa 🇪🇺🇪🇺🇪🇺
 
 Por favor elige el número según corresponda su requerimiento:`,
     options: [
@@ -45,7 +45,63 @@ Por favor elige el número según corresponda su requerimiento:`,
       { id: '6', title: 'NO POR EL MOMENTO', nextStep: 'step25' },
     ],
   },
-  // Define other steps as needed
+  step3: {
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    options: [
+      { id: '1', title: 'PADRE', nextStep: 'step31' },
+      { id: '2', title: 'ABUELO', nextStep: 'step31' },
+      { id: '3', title: 'REUNIFICACIÓN FAMILIAR', nextStep: 'step31' },
+      { id: '4', title: 'OTROS', nextStep: 'step31' },
+    ],
+  },
+  step6: {
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    options: [
+      { id: '1', title: 'CUENTA PROPIA', nextStep: 'step31' },
+      { id: '2', title: 'CUENTA AJENA', nextStep: 'step31' },
+      { id: '3', title: 'PROFESIONAL CALIFICADO', nextStep: 'step31' },
+      { id: '4', title: 'OTRO', nextStep: 'step31' },
+    ],
+  },
+  step9: {
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    options: [
+      { id: '1', title: 'INDIVIDUAL', nextStep: 'step31' },
+      { id: '2', title: 'FAMILIA', nextStep: 'step31' },
+    ],
+  },
+  step2: {
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    options: [
+      { id: '1', title: 'PREGRADO', nextStep: 'step31' },
+      { id: '2', title: 'POSTGRADO', nextStep: 'step31' },
+      { id: '3', title: 'BECAS', nextStep: 'step31' },
+      { id: '4', title: 'OTROS', nextStep: 'step31' },
+    ],
+  },
+  step34: {
+    message: `Puede indicarme qué tipo de gestión requiere tramitar?`,
+    options: [
+      { id: '1', title: 'CONSULTORÍA GENERAL', nextStep: 'step31' },
+      { id: '2', title: 'SERVICIOS ESPECÍFICOS', nextStep: 'step31' },
+      { id: '3', title: 'OTROS', nextStep: 'step31' },
+    ],
+  },
+  step25: {
+    message: `Perfecto, si tiene alguna consulta no dude en contáctarnos.`,
+    final: true,
+  },
+  step31: {
+    message: `Muchas gracias por la información, uno de nuestros asesores le contactará en breve.
+
+Si su consulta es muy urgente.
+No dude en contactarnos al ☎️ 
+
+🇨🇱 +56996396692 
+🇵🇪 +51757382990
+🇪🇸 +34660592796`,
+    final: true,
+  },
 };
 
 // Function to send a specific flow step to the user
@@ -102,7 +158,8 @@ export const handleEspanolizateMessage = async (
       db.data.conversations[from].state = userState;
 
       if (userState && flow[userState]) {
-        await sendFlowStep(from, flow[userState]);
+        const nextStep = flow[userState];
+        await sendFlowStep(from, nextStep);
       } else {
         // Final message or undefined next step
         await sendWhatsAppMessage(
@@ -112,7 +169,8 @@ export const handleEspanolizateMessage = async (
         db.data.conversations[from].state = null; // Reset state
       }
     } else {
-      // Invalid selection
+      // Since using interactive lists, this block may not be reached.
+      // However, keeping a generic fallback just in case.
       await sendWhatsAppMessage(
         from,
         "Parece que no has elegido una opción válida. Por favor, selecciona una opción de la lista."

@@ -1,5 +1,17 @@
+// src/routes/conversation.ts
+
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+
+// Define the Conversation type as per index.ts
+type Conversation = {
+  messages: Array<{
+    timestamp: string;
+    message: string;
+    sender: 'user' | 'ai';
+  }>;
+  state: string | null;
+};
 
 export const registerConversationRoutes = (server: FastifyInstance) => {
   server.get<{
@@ -13,13 +25,13 @@ export const registerConversationRoutes = (server: FastifyInstance) => {
   }, async (request, reply) => {
     const { phoneNumber } = request.params;
     const { db } = server;
-    
+
     if (!db.data) {
       await db.read();
       db.data ||= { conversations: {}, autoRespond: {} };
     }
 
-    const conversation = db.data.conversations[phoneNumber] || [];
+    const conversation: Conversation = db.data.conversations[phoneNumber] || { messages: [], state: null };
     reply.send(conversation);
   });
 
@@ -39,12 +51,15 @@ export const registerConversationRoutes = (server: FastifyInstance) => {
     const { phoneNumber } = request.params;
     const { message } = request.body;
     const { db } = server;
-    
+
     if (!db.data) {
       throw new Error('Database not initialized');
     }
 
-    db.data.conversations[phoneNumber] = db.data.conversations[phoneNumber] || { messages: [], state: null };
+    if (!db.data.conversations[phoneNumber]) {
+      db.data.conversations[phoneNumber] = { messages: [], state: null };
+    }
+
     db.data.conversations[phoneNumber].messages.push({
       timestamp: new Date().toISOString(),
       message,
