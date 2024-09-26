@@ -17,11 +17,8 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
       entry: Array<{
         changes: Array<{
           value: {
-            messages: Array<{
-              from: string;
-              text: { body: string };
-              id: string;
-            }>;
+            messages?: Array<any>; // Made messages optional
+            statuses?: Array<any>; // Optional: handle statuses if needed
           };
         }>;
       }>;
@@ -33,11 +30,8 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
         entry: z.array(z.object({
           changes: z.array(z.object({
             value: z.object({
-              messages: z.array(z.object({
-                from: z.string(),
-                text: z.object({ body: z.string() }),
-                id: z.string(),
-              })),
+              messages: z.array(z.any()).optional(), // Made messages optional
+              statuses: z.array(z.any()).optional(),
             }),
           })),
         })),
@@ -45,17 +39,22 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
     },
   }, async (request, reply) => {
     const { body } = request;
-    
+
     if (body.object === 'whatsapp_business_account') {
       for (const entry of body.entry) {
         for (const change of entry.changes) {
-          for (const message of change.value.messages) {
-            await processIncomingMessage(server, message.from, message.text.body, message.id);
+          if (change.value.messages) {
+            for (const message of change.value.messages) {
+              await processIncomingMessage(server, message);
+            }
+          } else if (change.value.statuses) {
+            // Optional: handle statuses if needed
+            server.log.info('Received status update:', change.value.statuses);
           }
         }
       }
     }
-    
+
     reply.send({ status: 'OK' });
   });
 
@@ -84,7 +83,30 @@ export const registerWhatsAppRoutes = (server: FastifyInstance) => {
   });
 };
 
-async function processIncomingMessage(server: FastifyInstance, from: string, text: string, messageId: string) {
+async function processIncomingMessage(server: FastifyInstance, message: any) {
+  const from = message.from;
+  const messageId = message.id;
+  let text = '';
+
+  if (message.type === 'text') {
+    text = message.text.body;
+  } else if (message.type === 'interactive') {
+    if (message.interactive.type === 'button_reply') {
+      text = message.interactive.button_reply.id;
+    } else if (message.interactive.type === 'list_reply') {
+      text = message.interactive.list_reply.id;
+    }
+    // Handle other interactive types if necessary
+  } else {
+    // Handle other message types if necessary
+    server.log.info(`Received unsupported message type: ${message.type}`);
+  }
+
+  // Proceed with your existing logic using the extracted 'text'
+  await handleMessageText(server, from, text, messageId);
+}
+
+async function handleMessageText(server: FastifyInstance, from: string, text: string, messageId: string) {
   const { db } = server;
 
   if (!db.data) {
@@ -97,7 +119,7 @@ async function processIncomingMessage(server: FastifyInstance, from: string, tex
   if (isAutoRespond) {
     const preFabMessage = `
 Este servicio tiene un costo mensual de solo $9.99 USD, lo que te da acceso completo a las funciones 24/7 de apoyo y acompañamiento emocional.
-Sin embargo, si prefieres hacer un pago anual, tenemos una promoción del 50% de descuento. 
+Sin embargo, si prefieres hacer un pago anual, tenemos una promoción del 50% de descuento.
 
 Esto significa que el pago por todo el año sería solo $59.99 USD, ahorrándote un total de $60 USD durante el año completo.
 
@@ -106,7 +128,7 @@ Para seleccionar el plan mensual de $9.99 USD al mes.
 
 🔗 https://pay.hotmart.com/V95372989N?off=8v2fi8ts&checkoutMode=10 🔗
 ----------------------------------
-Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 USD al año
+Para seleccionar el plan anual con el 50% de descuento, por un total de $59.99 USD al año
 👇🏻Haz Click Aquí 👇🏻
 
 🔗 https://pay.hotmart.com/V95372989N?off=j68zq7ud&checkoutMode=10 🔗
@@ -114,9 +136,18 @@ Para seleccionar el plan  anual con el 50% de descuento, por un total de $59.99 
     await sendWhatsAppMessage(from, preFabMessage, messageId);
     server.log.info(`Auto-respond message sent to ${from}`);
   } else if (text.toLowerCase() === 'menu' || text === 'menu_button') {
-    await sendInteractiveList(from, 'Please choose an option:', ['Chatbot', 'Assistant']);
+    await sendInteractiveList(from, 'Por favor, elige una opción:', ['Chatbot', 'Assistant']);
     server.log.info(`Interactive list sent to ${from}`);
+  } else if (text === 'option_1') {
+    // Handle 'Chatbot' option
+    await sendWhatsAppMessage(from, 'Has seleccionado la opción Chatbot.', messageId);
+    // Additional logic if needed
+  } else if (text === 'option_2') {
+    // Handle 'Assistant' option
+    await sendWhatsAppMessage(from, 'Has seleccionado la opción Assistant.', messageId);
+    // Additional logic if needed
   } else {
+    // Default case: Process the message with LangChain
     const response = await server.inject({
       method: 'POST',
       url: '/generate',
@@ -133,24 +164,10 @@ async function sendWhatsAppMessage(to: string, text: string, messageId?: string)
   const messageBody: any = {
     messaging_product: 'whatsapp',
     to,
-    type: 'interactive',
-    interactive: {
-      type: 'button',
-      body: {
-        text: text
-      },
-      action: {
-        buttons: [
-          {
-            type: 'reply',
-            reply: {
-              id: 'menu_button',
-              title: 'Menu'
-            }
-          }
-        ]
-      }
-    }
+    type: 'text',
+    text: {
+      body: text,
+    },
   };
 
   if (messageId) {
@@ -172,19 +189,23 @@ async function sendInteractiveList(to: string, text: string, options: string[]) 
       type: 'list',
       header: {
         type: 'text',
-        text: 'Choose an option',
+        text: 'Elige una opción',
       },
       body: {
         text,
       },
+      footer: {
+        text: 'Selecciona una opción de la lista',
+      },
       action: {
-        button: 'Select',
+        button: 'Seleccionar',
         sections: [
           {
-            title: 'Options',
+            title: 'Opciones',
             rows: options.map((option, index) => ({
               id: `option_${index + 1}`,
               title: option,
+              description: 'Descripción si es necesaria',
             })),
           },
         ],
